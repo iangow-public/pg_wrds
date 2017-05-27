@@ -53,6 +53,14 @@ install.packages(c("tidyverse", "RPostgreSQL"))
 In the examples that follow, I will assume that you have the certain enviroment variables set up. 
 This can be done within RStudio by typing code like the folloowing into the Console pane:
 
+```r
+Sys.setenv(PGHOST="wrds-pgdata.wharton.upenn.edu", PGPORT=9737L)
+Sys.setenv(PGDATABASE="wrds", PGUSER="your_wrds_id")
+```
+
+```{r, echo=FALSE}
+Sys.setenv(PGHOST="wrds-pgdata.wharton.upenn.edu", PGPORT=9737L)
+Sys.setenv(PGDATABASE="wrds", PGUSER="iangow")
 ```
 
 Now, let's get started.
