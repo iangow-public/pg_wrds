@@ -1,0 +1,58 @@
+---
+title: "The WRDS PostgreSQL database"
+subtitle: "An example-based approach to doing research with R"
+author: "Ian D. Gow"
+site: bookdown::bookdown_site
+documentclass: book
+output:
+  bookdown::gitbook: default
+  bookdown::pdf_book: default
+---
+
+# Introduction
+
+In recent years, we have heard much about the explosion of "big data" and the emergence of the data scientist.
+A casual perusal of the shelves of the section of the bookstore dedicated to topics related to data science suggests that data science is often done using R and Python.
+
+In contrast, many researchers in finance and accounting tend to use the old standard of SAS, with Stata being a relative newcomer.
+This is particularly the case when it comes to data on the Wharton Research Data Services (WRDS) platform.
+First, the default format for WRDS data is the SAS binary format (`.sas7bdat`).
+Second, example programs provided by WRDS for dealing with CRSP, Compustat and IBES are usually provided as SAS code.
+
+While there are many resources for learning R, for an academic researcher (*with a WRDS account*) in accounting, finance, and adjacent fields, this book offers an 
+introduction using familiar data with very little set-up cost.
+Apart from the requirement for a WRDS account, the software used in this book is open-source, free, available on all major platforms, and easy to set up.
+
+One challenge in learning R is the plethora of packages and inconsistent approaches across many of these.
+To minimize this, this book focuses on the "tidyverse" as the core set of packages for analysis.
+As discussed on its [website](http://tidyverse.org), "the tidyverse is a collection of R packages that share common philosophies and are designed to work together. ...
+If you are new to the tidyverse, the best place to learn the complete philsophy and how everything fits together is the [R for data science](http://r4ds.had.co.nz/) book."
+
+## PostgreSQL on WRDS
+
+According to the official [website](https://www.postgresql.org/about/), "PostgreSQL is a powerful, open source object-relational database system."
+Similar systems include MySQL and Oracle.
+If you have used `PROC SQL` in SAS, then you can think of PostgreSQL as a system where SQL is the native language.^[And much of what you know from `PROC SQL` will carry over to PostgreSQL.]
+The critical thing for the purposes of this book is that WRDS has made available a PostgreSQL database server that gives you access to all the WRDS data you would otherwise access via SAS on WRDS's servers.
+
+## Setting up
+
+To run the code in this book you will need the following:
+
+1. **A WRDS ID.**
+2. **R**: "R is a free software environment for statistical computing and graphics."^[See [here](https://www.r-project.org)] 
+R has becaome *the* standard statistical programming language in many areas of statistics and is gaining popularity in other areas.
+It runs on all major platforms and the easiest way to get R is from this [website](https://cran.r-project.org).
+3. **RStudio**: While not strictly necessary, if you are new to R, I recommend that you start with RStudio.
+"RStudio is an integrated development environment (IDE) for R. It includes a console, syntax-highlighting editor that supports direct code execution, as well as tools for plotting, history, debugging and workspace management."^[See [here](https://www.rstudio.com/products/rstudio/).]
+4. **Required R packages.** After installing R and RStudio, open RStudio, and type the following into the "Console" pane, then press enter:
+```r
+install.packages(c("tidyverse", "RPostgreSQL"))
+```
+
+In the examples that follow, I will assume that you have the certain enviroment variables set up. 
+This can be done within RStudio by typing code like the folloowing into the Console pane:
+
+```
+
+Now, let's get started.
