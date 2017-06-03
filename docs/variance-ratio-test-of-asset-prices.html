@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>The WRDS PostgreSQL database</title>
+  <meta name="description" content="The WRDS PostgreSQL database">
+  <meta name="generator" content="bookdown 0.4 and GitBook 2.6.7">
+
+  <meta property="og:title" content="The WRDS PostgreSQL database" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="The WRDS PostgreSQL database" />
+  
+  
+  
+
+<meta name="author" content="Ian D. Gow">
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="performance-over-time.html">
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#postgresql-on-wrds"><i class="fa fa-check"></i><b>1.1</b> PostgreSQL on WRDS</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#setting-up"><i class="fa fa-check"></i><b>1.2</b> Setting up</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="performance-over-time.html"><a href="performance-over-time.html"><i class="fa fa-check"></i><b>2</b> Performance over time</a></li>
+<li class="chapter" data-level="3" data-path="variance-ratio-test-of-asset-prices.html"><a href="variance-ratio-test-of-asset-prices.html"><i class="fa fa-check"></i><b>3</b> Variance-ratio test of asset prices</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">The WRDS PostgreSQL database</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="variance-ratio-test-of-asset-prices" class="section level1">
+<h1><span class="header-section-number">Chapter 3</span> Variance-ratio test of asset prices</h1>
+<p>Here we follow BBK in replicating part of Lo and MacKinlay (1988).</p>
+<p>In the relevant part of the paper, Lo and MacKinlay (1988) use weekly returns on the equal-weighted CRSP index going from one Wednesday to the next over a fixed period. One issue I discovered in doing this is that in 1968 there was a “paperwork crisis” that led to markets being closed on Wednesdays for several months and thus gaps in the sequence of index data on <code>crsp.dsic</code>. For those Wednesdays, I want to select the index on the next day (i.e., Thursday) as that seems to be what Lo and MacKinlay (1988). But how to do this? The easiest way is probably to get the full sequence of Wednesdays over the relevant time period and use an SQL <code>LEFT JOIN</code> with <code>crsp.dsic</code>. But how to get those dates? PostgreSQL has convenient functions for generating sequences, including sequences of dates.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr, <span class="dt">warn.conflicts =</span> <span class="ot">FALSE</span>)
+<span class="kw">library</span>(tidyr)
+
+pg &lt;-<span class="st"> </span><span class="kw">src_postgres</span>()
+
+first_date &lt;-<span class="st"> &#39;1962-09-05&#39;</span>
+last_date &lt;-<span class="st"> &#39;1985-12-27&#39;</span>
+
+get_dates &lt;-<span class="st"> </span><span class="cf">function</span>(first_date, last_date) {
+     <span class="kw">tbl</span>(pg, <span class="kw">sql</span>(<span class="kw">paste0</span>(<span class="st">&quot;SELECT caldt::date FROM generate_series(&#39;&quot;</span>,  first_date, 
+                        <span class="st">&quot;&#39;::date, &#39;&quot;</span>, last_date, <span class="st">&quot;&#39;::date, &#39;1 day&#39;) AS caldt&quot;</span>)))
+}
+all_days &lt;-<span class="st"> </span><span class="kw">get_dates</span>(first_date, last_date)</code></pre></div>
+<p>Here I set <code>first_date</code> and <code>last_date</code> to the dates used in the Lo and MacKinlay (1988) data set. This gives me a one-column data set I can <code>LEFT JOIN</code> onto the index data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">all_days</code></pre></div>
+<pre><code>## Source:   query [?? x 1]
+## Database: postgres 9.5.5 [iangow@wrds-pgdata.wharton.upenn.edu:9737/wrds]
+## 
+## # A tibble: ?? x 1
+##         caldt
+##        &lt;date&gt;
+##  1 1962-09-05
+##  2 1962-09-06
+##  3 1962-09-07
+##  4 1962-09-08
+##  5 1962-09-09
+##  6 1962-09-10
+##  7 1962-09-11
+##  8 1962-09-12
+##  9 1962-09-13
+## 10 1962-09-14
+## # ... with more rows</code></pre>
+<p>I next get the index data. It takes some digging around WRDS to work out where these data are. The data in <code>crsp.dsic</code> seem to be closest to the data in BBK, but they’re not exactly the same.</p>
+<p>As you can see, I use a <code>left_join</code> and then <code>coalesce</code> the index values so that if there’s no index value on given day, I grab the index value for the next day. I calculate a Boolean variable <code>is_wed</code> using the PostgreSQL function <code>date_part</code>. As discussed <a href="https://www.postgresql.org/docs/current/static/functions-datetime.html">here</a>, the first argument is the subfield of interest and <code>dow</code> means the day of the week.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dsic &lt;-<span class="st"> </span><span class="kw">tbl</span>(pg, <span class="kw">sql</span>(<span class="st">&quot;SELECT * FROM crsp.dsic&quot;</span>))
+
+weekly &lt;-
+<span class="st">    </span>all_days <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">left_join</span>(dsic, <span class="dt">by=</span><span class="st">&quot;caldt&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">arrange</span>(caldt) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">ewindd =</span> <span class="kw">coalesce</span>(ewindd, <span class="kw">lead</span>(ewindd)),
+           <span class="dt">is_wed =</span> <span class="kw">date_part</span>(<span class="st">&#39;dow&#39;</span>, caldt)<span class="op">==</span><span class="dv">3</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">filter</span>(is_wed, caldt <span class="op">&gt;=</span><span class="st"> </span>first_date) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">select</span>(caldt, ewindd) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">collect</span>() 
+
+weekly</code></pre></div>
+<pre><code>## # A tibble: 1,217 x 2
+##         caldt   ewindd
+##  *     &lt;date&gt;    &lt;dbl&gt;
+##  1 1962-09-05 19.11752
+##  2 1962-09-12 19.18704
+##  3 1962-09-19 19.13889
+##  4 1962-09-26 18.25731
+##  5 1962-10-03 18.13396
+##  6 1962-10-10 18.32882
+##  7 1962-10-17 18.05450
+##  8 1962-10-24 17.05632
+##  9 1962-10-31 17.63124
+## 10 1962-11-07 18.23407
+## # ... with 1,207 more rows</code></pre>
+<p>The next step is to calculate the ratio of variance of <span class="math inline">\(q\)</span>-week returns to the variance of one-week returns. Lo and MacKinlay (1988) provide a test statistic that has an asymptotic standard normal distribution. If <span class="math inline">\(P_k\)</span> is the natural logaritm of the index in period <span class="math inline">\(k\)</span>, then returns are simply <span class="math inline">\(P_k - P_{k-1}\)</span>.</p>
+<p>Denoting mean returns as <span class="math inline">\(\hat{\mu}\)</span>, we can calculate the following quantities</p>
+<p><span class="math display">\[
+\begin{align*}
+\hat{\mu} &amp;= \frac{1}{n} \sum_{k=1}^n \left(P_k - P_{k-1}\right) \\
+\overline{\sigma}_a^2 &amp; = \frac{1}{n-1} \sum_{k=1}^n \left(P_k - P_{k-1} - \hat{\mu} \right)^2 \\
+\overline{\sigma}_q^2 &amp; = \frac{1}{m} \sum_{k=1}^n \left(P_k - P_{k-q} - \hat{\mu} \right)^2 \\
+m &amp;= q(n-q+1) \left(1-\frac{q}{n}\right) \\
+\overline{M}_r &amp;= \frac{\sigma_q}{\sigma_a} -1
+\end{align*}
+\]</span> Lo and MacKinlay show that the test statistic</p>
+<p><span class="math display">\[
+z^* = \frac{\sqrt{n} \overline{M}_r}{\sqrt{\hat{\theta}}} \to N(0,1)
+\]</span> where <span class="math display">\[
+\hat{\theta} = \sum_{j = 1}^{q - 1} \left( \left(\frac{2(q-j)}{q} \right)^2 \hat{\delta}(j) \right)
+\]</span> and <span class="math display">\[
+\hat{\delta}(j) = \frac{n \sum_{k = j + 1}^n \left(P_k - P_{k-1} - \hat{\mu}\right)^2  \left(P_k - P_{k-j-1} - \hat{\mu}\right)^2}{\left(\sum_{k=j+1}^{n} \left(P_k - P_{k-1} - \hat{\mu}\right)^2\right)^2 }
+\]</span> BBK first provide code for <span class="math inline">\(q = 2\)</span> and then carefully adapt the code for <span class="math inline">\(q = 4\)</span>. BBK direct the reader to a later chapter to show how the SAS macro facility could be used to produce a general function for any value of <span class="math inline">\(q \geq 2\)</span>.</p>
+<p>But in R, it is easy enough to make a function right from the beginning. While BBK’s SAS code involves multiple steps and data sets, everything we need is a function of the index values (which become <span class="math inline">\(\{ P_k: k \in (1, n)\}\)</span> after taking logs) and the value <span class="math inline">\(q\)</span>.</p>
+<p>Most of the calculations above are straightforward except for <span class="math inline">\(\hat{theta}\)</span>, which involves summing the product of two terms over values of <span class="math inline">\(j\)</span> ranging from <span class="math inline">\(1\)</span> to <span class="math inline">\(q - 1\)</span>. One approach would be to use a loop:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">theta &lt;-<span class="st"> </span><span class="dv">0</span> 
+<span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>(q<span class="op">-</span><span class="dv">1</span>)) {
+    theta &lt;-<span class="st"> </span>theta <span class="op">+</span><span class="st"> </span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(q <span class="op">-</span><span class="st"> </span>j)<span class="op">/</span>q)<span class="op">^</span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span><span class="kw">delta</span>(j)
+}</code></pre></div>
+<p>But an alternative approach is to use vectors. Taking <span class="math inline">\(q = 4\)</span>, we can calculate the first term of the product as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">q &lt;-<span class="st"> </span><span class="dv">4</span>
+j &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>(q<span class="op">-</span><span class="dv">1</span>)
+(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(q <span class="op">-</span><span class="st"> </span>j)<span class="op">/</span>q)<span class="op">^</span><span class="dv">2</span></code></pre></div>
+<pre><code>## [1] 2.25 1.00 0.25</code></pre>
+<p>Doing the same for <span class="math inline">\(\hat{\delta{j}}\)</span> is a little more complicated, but quite feasible using the <code>lapply</code> functional. The basic idea of <code>lapply</code> is that it applies a function (its second argument) to the list given as its first argument and returns a list of results. Here we create a function <code>f</code> and apply it to the list of numbers from 1 to 6. As you can see, the result (<code>res</code>) is a list.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="dv">3</span> <span class="op">*</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">6</span>
+res &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>, f)
+res</code></pre></div>
+<pre><code>## [[1]]
+## [1] 11
+## 
+## [[2]]
+## [1] 22
+## 
+## [[3]]
+## [1] 39
+## 
+## [[4]]
+## [1] 62
+## 
+## [[5]]
+## [1] 91
+## 
+## [[6]]
+## [1] 126</code></pre>
+<p>We can turn the result into a vector by using <code>unlist</code>. Also, we can skip the step of assigning the function to <code>f</code>. Combining these two ideas gives:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>, <span class="cf">function</span>(x) <span class="dv">3</span> <span class="op">*</span><span class="st"> </span>x<span class="op">^</span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span><span class="dv">2</span> <span class="op">*</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">6</span>))
+res</code></pre></div>
+<pre><code>## [1]  11  22  39  62  91 126</code></pre>
+<p>We can sum <code>res</code> by calling <code>sum(res)</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sum</span>(res)</code></pre></div>
+<pre><code>## [1] 351</code></pre>
+<p>We apply this idea in calculating <code>deltop</code> (the numerator or “top” of the expression for <span class="math inline">\(\hat{\delta}(j)\)</span>) below and then summing to calculate <span class="math inline">\(\hat{\theta}\)</span>. The function <code>get_varrat</code> takes index values (<code>p</code>) and a value of <span class="math inline">\(q\)</span> (<code>q</code>) and returns output much like that on pp.12–13 of BBK.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">get_varrat &lt;-<span class="st"> </span><span class="cf">function</span>(p, q) {
+    
+    p &lt;-<span class="st"> </span><span class="kw">log</span>(p)
+    ret &lt;-<span class="st"> </span>p <span class="op">-</span><span class="st"> </span><span class="kw">lag</span>(p)
+    ret_q  &lt;-<span class="st"> </span>p <span class="op">-</span><span class="st"> </span><span class="kw">lag</span>(p, q)
+    
+    muhat &lt;-<span class="st"> </span><span class="kw">mean</span>(ret, <span class="dt">na.rm=</span><span class="ot">TRUE</span>)
+    n &lt;-<span class="st"> </span><span class="kw">sum</span>(<span class="op">!</span><span class="kw">is.na</span>(ret))
+
+    sqr_dev &lt;-<span class="st"> </span>(ret <span class="op">-</span><span class="st">  </span>muhat)<span class="op">^</span><span class="dv">2</span>
+    siga &lt;-<span class="st"> </span><span class="kw">sum</span>(sqr_dev, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)<span class="op">/</span>(n<span class="op">-</span><span class="dv">1</span>)
+    
+    m =<span class="st"> </span>q <span class="op">*</span><span class="st"> </span>(n <span class="op">-</span><span class="st"> </span>q <span class="op">+</span><span class="st"> </span><span class="dv">1</span>) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>q <span class="op">/</span><span class="st"> </span>n)
+    sigc &lt;-<span class="st"> </span><span class="kw">sum</span>((ret_q <span class="op">-</span><span class="st"> </span>q <span class="op">*</span><span class="st"> </span>muhat)<span class="op">^</span><span class="dv">2</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)<span class="op">/</span>m
+    varrat &lt;-<span class="st"> </span>sigc<span class="op">/</span>siga
+
+    j <span class="op">&lt;</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span>(q<span class="op">-</span><span class="dv">1</span>)
+    delbot &lt;-<span class="st"> </span><span class="kw">sum</span>(sqr_dev, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)<span class="op">^</span><span class="dv">2</span>
+    deltop &lt;-<span class="st"> </span>n <span class="op">*</span><span class="st"> </span><span class="kw">unlist</span>(<span class="kw">lapply</span>(j, <span class="cf">function</span>(x) <span class="kw">sum</span>(sqr_dev <span class="op">*</span><span class="st"> </span><span class="kw">lag</span>(sqr_dev, x), <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))
+
+    delta &lt;-<span class="st"> </span>deltop<span class="op">/</span>delbot
+    theta &lt;-<span class="st"> </span><span class="kw">sum</span>(((<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>(q <span class="op">-</span><span class="st"> </span>j)<span class="op">/</span>q)<span class="op">^</span><span class="dv">2</span>) <span class="op">*</span><span class="st"> </span>delta)
+    z &lt;-<span class="st"> </span><span class="kw">sqrt</span>(n) <span class="op">*</span><span class="st"> </span>(varrat <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)<span class="op">/</span><span class="kw">sqrt</span>(theta)
+
+    <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Number of weekly returns: %d</span><span class="ch">\n</span><span class="st">&quot;</span>, n))
+    <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Variance ratio:           %3.5f</span><span class="ch">\n</span><span class="st">&quot;</span>, varrat))
+    <span class="kw">cat</span>(<span class="kw">sprintf</span>(<span class="st">&quot;Test statistic:           %3.5f</span><span class="ch">\n</span><span class="st">&quot;</span>, z))
+}</code></pre></div>
+<p>Now we have our function, we can reproduce Output 2.1 and Output 2.2 from BBK.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_varrat</span>(weekly<span class="op">$</span>ewindd, <span class="dv">2</span>)</code></pre></div>
+<pre><code>## Number of weekly returns: 1216
+## Variance ratio:           1.29519
+## Test statistic:           5.56734</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_varrat</span>(weekly<span class="op">$</span>ewindd, <span class="dv">4</span>)</code></pre></div>
+<pre><code>## Number of weekly returns: 1216
+## Variance ratio:           1.64119
+## Test statistic:           8.88615</code></pre>
+
+</div>
+
+
+
+
+
+
+
+
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="performance-over-time.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
