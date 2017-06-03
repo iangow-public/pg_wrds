@@ -1,0 +1,4 @@
+book_filename: "pg_wrds"
+chapter_name: "Chapter "
+repo: https://github.com/iangow/pg_wrds
+output_dir: docs
