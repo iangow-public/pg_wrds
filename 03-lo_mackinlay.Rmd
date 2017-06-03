@@ -1,0 +1,174 @@
+# Variance-ratio test of asset prices
+
+Here we follow BBK in replicating part of Lo and MacKinlay (1988).
+
+In the relevant part of the paper, Lo and MacKinlay (1988) use weekly returns on the equal-weighted CRSP index going from one Wednesday to the next over a fixed period.
+One issue I discovered in doing this is that in 1968 there was a "paperwork crisis" that led to markets being closed on Wednesdays for several months and thus gaps in the sequence of index data on `crsp.dsic`.
+For those Wednesdays, I want to select the index on the next day (i.e., Thursday) as that seems to be what Lo and MacKinlay (1988). 
+But how to do this?
+The easiest way is probably to get the full sequence of Wednesdays over the relevant time period and use an SQL `LEFT JOIN` with `crsp.dsic`.
+But how to get those dates?
+PostgreSQL has convenient functions for generating sequences, including sequences of dates.
+
+```{r lm88_set-up}
+library(dplyr, warn.conflicts = FALSE)
+library(tidyr)
+
+pg <- src_postgres()
+
+first_date <- '1962-09-05'
+last_date <- '1985-12-27'
+
+get_dates <- function(first_date, last_date) {
+     tbl(pg, sql(paste0("SELECT caldt::date FROM generate_series('",  first_date, 
+                        "'::date, '", last_date, "'::date, '1 day') AS caldt")))
+}
+all_days <- get_dates(first_date, last_date)
+```
+
+Here I set `first_date` and `last_date` to the dates used in the Lo and MacKinlay (1988) data set.
+This gives me a one-column data set I can `LEFT JOIN` onto the index data.
+
+```{r lm88_dates}
+all_days
+```
+
+I next get the index data.
+It takes some digging around WRDS to work out where these data are.
+The data in `crsp.dsic` seem to be closest to the data in BBK, but they're not exactly the same.
+
+As you can see, I use a `left_join` and then `coalesce` the index values so that if there's no index value on given day, I grab the index value for the next day.
+I calculate a Boolean variable `is_wed` using the PostgreSQL function `date_part`. 
+As discussed [here](https://www.postgresql.org/docs/current/static/functions-datetime.html), the first argument is the subfield of interest and `dow` means the day of the week.
+
+```{r lm_1988_index}
+dsic <- tbl(pg, sql("SELECT * FROM crsp.dsic"))
+
+weekly <-
+    all_days %>%
+    left_join(dsic, by="caldt") %>%
+    arrange(caldt) %>%
+    mutate(ewindd = coalesce(ewindd, lead(ewindd)),
+           is_wed = date_part('dow', caldt)==3) %>%
+    filter(is_wed, caldt >= first_date) %>%
+    select(caldt, ewindd) %>%
+    collect() 
+
+weekly
+```
+ 
+The next step is to calculate the ratio of variance of $q$-week returns to the variance of one-week returns.
+Lo and MacKinlay (1988) provide a test statistic that has an asymptotic standard normal distribution.
+If $P_k$ is the natural logaritm of the index in period $k$, then returns are simply $P_k - P_{k-1}$. 
+
+Denoting mean returns as $\hat{\mu}$, we can calculate the following quantities
+
+$$
+\begin{align*}
+\hat{\mu} &= \frac{1}{n} \sum_{k=1}^n \left(P_k - P_{k-1}\right) \\
+\overline{\sigma}_a^2 & = \frac{1}{n-1} \sum_{k=1}^n \left(P_k - P_{k-1} - \hat{\mu} \right)^2 \\
+\overline{\sigma}_q^2 & = \frac{1}{m} \sum_{k=1}^n \left(P_k - P_{k-q} - \hat{\mu} \right)^2 \\
+m &= q(n-q+1) \left(1-\frac{q}{n}\right) \\
+\overline{M}_r &= \frac{\sigma_q}{\sigma_a} -1
+\end{align*}
+$$
+Lo and MacKinlay show that the test statistic
+
+$$
+z^* = \frac{\sqrt{n} \overline{M}_r}{\sqrt{\hat{\theta}}} \to N(0,1)
+$$
+where 
+$$
+\hat{\theta} = \sum_{j = 1}^{q - 1} \left( \left(\frac{2(q-j)}{q} \right)^2 \hat{\delta}(j) \right)
+$$
+and
+$$
+\hat{\delta}(j) = \frac{n \sum_{k = j + 1}^n \left(P_k - P_{k-1} - \hat{\mu}\right)^2  \left(P_k - P_{k-j-1} - \hat{\mu}\right)^2}{\left(\sum_{k=j+1}^{n} \left(P_k - P_{k-1} - \hat{\mu}\right)^2\right)^2 }
+$$
+BBK first provide code for $q = 2$ and then carefully adapt the code for $q = 4$.
+BBK direct the reader to a later chapter to show how the SAS macro facility could be used to produce a general function for any value of $q \geq 2$.
+
+But in R, it is easy enough to make a function right from the beginning.
+While BBK's SAS code involves multiple steps and data sets, everything we need is a function of the index values (which become $\{ P_k: k \in (1, n)\}$ after taking logs) and the value $q$.
+
+Most of the calculations above are straightforward except for $\hat{theta}$, which involves summing the product of two terms over values of $j$ ranging from $1$ to $q - 1$.
+One approach would be to use a loop: 
+
+```r
+theta <- 0 
+for (j in 1:(q-1)) {
+    theta <- theta + (2 * (q - j)/q)^2 + delta(j)
+}
+```
+But an alternative approach is to use vectors.
+Taking $q = 4$, we can calculate the first term of the product as follows:
+```{r lm_1988_vectors}
+q <- 4
+j <- 1:(q-1)
+(2 * (q - j)/q)^2
+```
+
+Doing the same for $\hat{\delta{j}}$ is a little more complicated, but quite feasible using the `lapply` functional.
+The basic idea of `lapply` is that it applies a function (its second argument) to the list given as its first argument and returns a list of results.
+Here we create a function `f` and apply it to the list of numbers from 1 to 6.
+As you can see, the result (`res`) is a list.
+```{r lm_1988_lapply}
+f <- function(x) 3 * x^2 + 2 * x + 6
+res <- lapply(1:6, f)
+res
+```
+
+We can turn the result into a vector by using `unlist`. 
+Also, we can skip the step of assigning the function to `f`.
+Combining these two ideas gives:
+
+```{r lm_1988_lapply_v2}
+res <- unlist(lapply(1:6, function(x) 3 * x^2 + 2 * x + 6))
+res
+```
+We can sum `res` by calling `sum(res)`:
+
+```{r lm_1988_lapply_v3}
+sum(res)
+```
+
+We apply this idea in calculating `deltop` (the numerator or "top" of the expression for $\hat{\delta}(j)$) below and then summing to calculate $\hat{\theta}$.
+The function `get_varrat` takes index values (`p`) and a value of $q$ (`q`) and returns output much like that on pp.12--13 of BBK.
+
+```{r lm_1988_function}
+get_varrat <- function(p, q) {
+    
+    p <- log(p)
+    ret <- p - lag(p)
+    ret_q  <- p - lag(p, q)
+    
+    muhat <- mean(ret, na.rm=TRUE)
+    n <- sum(!is.na(ret))
+
+    sqr_dev <- (ret -  muhat)^2
+    siga <- sum(sqr_dev, na.rm = TRUE)/(n-1)
+    
+    m = q * (n - q + 1) * (1 - q / n)
+    sigc <- sum((ret_q - q * muhat)^2, na.rm = TRUE)/m
+    varrat <- sigc/siga
+
+    j < 1:(q-1)
+    delbot <- sum(sqr_dev, na.rm = TRUE)^2
+    deltop <- n * unlist(lapply(j, function(x) sum(sqr_dev * lag(sqr_dev, x), na.rm = TRUE)))
+
+    delta <- deltop/delbot
+    theta <- sum(((2 * (q - j)/q)^2) * delta)
+    z <- sqrt(n) * (varrat - 1)/sqrt(theta)
+
+    cat(sprintf("Number of weekly returns: %d\n", n))
+    cat(sprintf("Variance ratio:           %3.5f\n", varrat))
+    cat(sprintf("Test statistic:           %3.5f\n", z))
+}
+```
+
+Now we have our function, we can reproduce Output 2.1 and Output 2.2 from BBK.
+
+```{r lm_1988_output}
+get_varrat(weekly$ewindd, 2)
+get_varrat(weekly$ewindd, 4)
+```
