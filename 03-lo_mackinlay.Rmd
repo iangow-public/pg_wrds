@@ -152,7 +152,7 @@ get_varrat <- function(p, q) {
     sigc <- sum((ret_q - q * muhat)^2, na.rm = TRUE)/m
     varrat <- sigc/siga
 
-    j < 1:(q-1)
+    j <- 1:(q-1)
     delbot <- sum(sqr_dev, na.rm = TRUE)^2
     deltop <- n * unlist(lapply(j, function(x) sum(sqr_dev * lag(sqr_dev, x), na.rm = TRUE)))
 

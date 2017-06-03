@@ -260,7 +260,7 @@ res</code></pre></div>
     sigc &lt;-<span class="st"> </span><span class="kw">sum</span>((ret_q <span class="op">-</span><span class="st"> </span>q <span class="op">*</span><span class="st"> </span>muhat)<span class="op">^</span><span class="dv">2</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)<span class="op">/</span>m
     varrat &lt;-<span class="st"> </span>sigc<span class="op">/</span>siga
 
-    j <span class="op">&lt;</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span>(q<span class="op">-</span><span class="dv">1</span>)
+    j &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>(q<span class="op">-</span><span class="dv">1</span>)
     delbot &lt;-<span class="st"> </span><span class="kw">sum</span>(sqr_dev, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)<span class="op">^</span><span class="dv">2</span>
     deltop &lt;-<span class="st"> </span>n <span class="op">*</span><span class="st"> </span><span class="kw">unlist</span>(<span class="kw">lapply</span>(j, <span class="cf">function</span>(x) <span class="kw">sum</span>(sqr_dev <span class="op">*</span><span class="st"> </span><span class="kw">lag</span>(sqr_dev, x), <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))
 
@@ -276,7 +276,7 @@ res</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_varrat</span>(weekly<span class="op">$</span>ewindd, <span class="dv">2</span>)</code></pre></div>
 <pre><code>## Number of weekly returns: 1216
 ## Variance ratio:           1.29519
-## Test statistic:           5.56734</code></pre>
+## Test statistic:           7.51390</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">get_varrat</span>(weekly<span class="op">$</span>ewindd, <span class="dv">4</span>)</code></pre></div>
 <pre><code>## Number of weekly returns: 1216
 ## Variance ratio:           1.64119
