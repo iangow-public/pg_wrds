@@ -1,6 +1,6 @@
 # Variance-ratio test of asset prices
 
-Here we follow BBK in replicating part of Lo and MacKinlay (1988).
+Here we follow BBK in replicating part of Lo and MacKinlay (1988).^[BBK is "Using SAS in Financial Research" by Boehmer, Broussar, and Kallunki.]
 
 In the relevant part of the paper, Lo and MacKinlay (1988) use weekly returns on the equal-weighted CRSP index going from one Wednesday to the next over a fixed period.
 One issue I discovered in doing this is that in 1968 there was a "paperwork crisis" that led to markets being closed on Wednesdays for several months and thus gaps in the sequence of index data on `crsp.dsic`.
@@ -55,6 +55,8 @@ weekly <-
     select(caldt, ewindd) %>%
     collect() 
 
+rs <- dbDisconnect(pg)
+
 weekly
 ```
  
@@ -64,7 +66,7 @@ If $P_k$ is the natural logaritm of the index in period $k$, then returns are si
 
 Denoting mean returns as $\hat{\mu}$, we can calculate the following quantities
 
-$$
+$
 \begin{align*}
 \hat{\mu} &= \frac{1}{n} \sum_{k=1}^n \left(P_k - P_{k-1}\right) \\
 \overline{\sigma}_a^2 & = \frac{1}{n-1} \sum_{k=1}^n \left(P_k - P_{k-1} - \hat{\mu} \right)^2 \\
@@ -72,7 +74,8 @@ $$
 m &= q(n-q+1) \left(1-\frac{q}{n}\right) \\
 \overline{M}_r &= \frac{\sigma_q}{\sigma_a} -1
 \end{align*}
-$$
+$
+
 Lo and MacKinlay show that the test statistic
 
 $$

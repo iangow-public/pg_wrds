@@ -47,7 +47,7 @@ It runs on all major platforms and the easiest way to get R is from this [websit
 "RStudio is an integrated development environment (IDE) for R. It includes a console, syntax-highlighting editor that supports direct code execution, as well as tools for plotting, history, debugging and workspace management."^[See [here](https://www.rstudio.com/products/rstudio/).]
 4. **Required R packages.** After installing R and RStudio, open RStudio, and type the following into the "Console" pane, then press enter:
 ```r
-install.packages(c("tidyverse", "RPostgreSQL"))
+install.packages(c("tidyverse", "RPostgres"))
 ```
 
 In the examples that follow, I will assume that you have the certain enviroment variables set up. 

@@ -36,7 +36,10 @@ get_quantiles <- function(df, var, quantiles) {
            var = as.character(quote(var_str)))
 }
 
+
+
 quantiles <- c(0.1, 0.25, 0.5, 0.75, 0.9)
+
 
 library(ggplot2)
 get_quantiles(comp, mb, quantiles) %>%
@@ -51,4 +54,6 @@ get_quantiles(comp, pe, quantiles) %>%
   geom_line() +
   xlab("Price-earnings ratios") +
   ylab("Fiscal year")
+
+rs <- dbDisconnect(pg)
 ```
