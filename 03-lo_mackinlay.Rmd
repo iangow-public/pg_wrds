@@ -13,8 +13,9 @@ PostgreSQL has convenient functions for generating sequences, including sequence
 ```{r lm88_set-up}
 library(dplyr, warn.conflicts = FALSE)
 library(tidyr)
+library(DBI)
 
-pg <- src_postgres()
+pg <- dbConnect(RPostgres::Postgres())
 
 first_date <- '1962-09-05'
 last_date <- '1985-12-27'

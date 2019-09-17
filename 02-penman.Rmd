@@ -3,8 +3,9 @@
 ```{r, cache=TRUE}
 library(dplyr, warn.conflicts = FALSE)
 library(tidyr)
+library(DBI)
 
-pg <- src_postgres()
+pg <- dbConnect(RPostgres::Postgres(), bigint = "integer")
 
 funda <- tbl(pg, sql("SELECT * FROM comp.funda"))
 
@@ -12,8 +13,8 @@ comp <-
     funda %>%
     filter(indfmt =='INDL', datafmt =='STD', popsrc=='D', consol=='C') %>%
     mutate(mktcap = prcc_f*csho,
-           mb = if_else(ceq > 0, prcc_f*csho/ceq),
-           pe = if_else(epspi >0, prcc_f/epspi)) %>%
+           mb = if_else(ceq > 0, prcc_f*csho/ceq, NA),
+           pe = if_else(epspi >0, prcc_f/epspi, NA)) %>%
     filter(mktcap > 200, fyear>=1963) %>%
     select(gvkey, fyear, mktcap, mb, pe)
 
