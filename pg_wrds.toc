@@ -1,0 +1,5 @@
+\contentsline {chapter}{\numberline {1}Introduction}{5}{chapter.1}% 
+\contentsline {section}{\numberline {1.1}PostgreSQL on WRDS}{5}{section.1.1}% 
+\contentsline {section}{\numberline {1.2}Setting up}{6}{section.1.2}% 
+\contentsline {chapter}{\numberline {2}Performance over time}{7}{chapter.2}% 
+\contentsline {chapter}{\numberline {3}Variance-ratio test of asset prices}{11}{chapter.3}% 
